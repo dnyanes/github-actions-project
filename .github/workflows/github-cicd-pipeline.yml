@@ -44,28 +44,38 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # Step 5: Configure AWS Credentials
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ap-south-1 # Change to your target AWS region
-
-      # Step 6: Copy build artifacts to Amazon S3
-      - name: Upload Artifacts to Amazon S3
-        run: |
-          aws s3 cp dist/app-build.zip s3://${{ secrets.AWS_S3_BUCKET }}/builds/${{ github.sha }}/app-build.zip
-
-      # 8. Upload WAR as artifact (optional, for later jobs)
+      # 6. Upload WAR as artifact (optional, for later jobs)
       - name: Upload WAR artifact
         uses: actions/upload-artifact@v4
         with:
           name: myapp
           path: target/*.war
+      # 6. Install SonarQube Scanner CLI
+      - name: Install SonarQube Scanner CLI
+        run: |
+          if [ ! -d "$HOME/sonar-scanner-cli" ]; then
+            echo "Downloading SonarQube Scanner CLI..."
+            wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.3.0.5189-linux-x64.zip -O /tmp/sonar-scanner.zip
+            unzip /tmp/sonar-scanner.zip -d $HOME
+            mv $HOME/sonar-scanner-7.3.0.5189-linux-x64 $HOME/sonar-scanner-cli
+          fi
+          export PATH=$HOME/sonar-scanner-cli/bin:$PATH
+          sonar-scanner -v
+      # 7. SonarQube analysis
+      - name: SonarQube Analysis
+        env:
+          SONAR_HOST: ${{ secrets.SONAR_HOST }}
+          SONAR_LOGIN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          echo "SonarQube server URL: $SONAR_HOST"
+          curl -I $SONAR_HOST
+          mvn sonar:sonar \
+            -Dsonar.projectKey=hotstar \
+            -Dsonar.host.url=$SONAR_HOST \
+            -Dsonar.login=$SONAR_LOGIN
 
   deploy:
-    runs-on: [self-hosted, linux]
+    runs-on: ubuntu-latest
     needs: build
     environment: production
 
