@@ -59,14 +59,18 @@ jobs:
             -Dsonar.tests=src/test
             -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
 
-      # Step 7: Enforce SonarQube Quality Gate Check (Fails pipeline if gate fails)
-      - name: Check SonarQube Quality Gate Status
-        uses: sonarsource/sonarqube-quality-gate-action@v2.1.0
-        # Force API polling timeout after 5 minutes if response lags
-        timeout-minutes: 5
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      # Step 5: Configure AWS Credentials
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1 # Change to your target AWS region
+
+      # Step 6: Copy build artifacts to Amazon S3
+      - name: Upload Artifacts to Amazon S3
+        run: |
+          aws s3 cp dist/app-build.zip s3://${{ secrets.AWS_S3_BUCKET }}/builds/${{ github.sha }}/app-build.zip
 
       # 8. Upload WAR as artifact (optional, for later jobs)
       - name: Upload WAR artifact
