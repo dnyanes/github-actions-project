@@ -69,6 +69,8 @@ jobs:
             -Dsonar.projectName=hotstar
             -Dsonar.sources=src
             -Dsonar.tests=src/test
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.login=${{ secrets.SONAR_TOKEN }}
 
       # Step 4: Enforce SonarQube Quality Gate Check
       - name: Check SonarQube Quality Gate Status
