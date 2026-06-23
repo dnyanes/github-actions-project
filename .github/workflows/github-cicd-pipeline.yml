@@ -53,8 +53,8 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
-            -Dsonar.projectKey=my-github-app-key
-            -Dsonar.projectName=MyGitHubApplication
+            -Dsonar.projectKey=hotstar
+            -Dsonar.projectName=hotstar
             -Dsonar.sources=src
             -Dsonar.tests=src/test
 
