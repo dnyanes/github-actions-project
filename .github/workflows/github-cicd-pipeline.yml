@@ -44,20 +44,28 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # Step 6: Run SonarQube Static Code Analysis
+      # Step 3: Run SonarQube Static Code Analysis
       - name: SonarQube Analysis Scan
-        uses: sonarsource/sonarqube-scan-action@v3.0.0
+        # UPGRADED from v3.0.0 to v5 to avoid Docker container initialization
+        uses: sonarsource/sonarqube-scan-action@v5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
-          # Optional inline arguments. Alternatively, configure a 'sonar-project.properties' file
           args: >
             -Dsonar.projectKey=my-github-app-key
             -Dsonar.projectName=MyGitHubApplication
             -Dsonar.sources=src
             -Dsonar.tests=src/test
-            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+      # Step 4: Enforce SonarQube Quality Gate Check
+      - name: Check SonarQube Quality Gate Status
+        # UPGRADED to complement the scanner engine
+        uses: sonarsource/sonarqube-quality-gate-action@v2
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       # Step 5: Configure AWS Credentials
       - name: Configure AWS Credentials
