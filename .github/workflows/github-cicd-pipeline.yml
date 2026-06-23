@@ -81,11 +81,10 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-south-1 # Change to your target AWS region
 
-      # Step 6: Copy build artifacts to Amazon S3
+      # Step 6: Copy build artifacts to Amazon S3 ds-githubaction-bkt1
       - name: Upload Artifacts to Amazon S3
         run: |
           aws s3 cp dist/app-build.zip s3://${{ secrets.AWS_S3_BUCKET }}/builds/${{ github.sha }}/app-build.zip
-#Use code with caution.Key Workflow Updatesaws-actions/configure-aws-credentials: This is the official AWS action used to securely authenticate your workflow session using your GitHub environment secrets.aws s3 cp: Copies the artifact (dist/app-build.zip) directly to your specified bucket destination.${{ github.sha }}: Uses the unique Git commit ID in the S3 directory path to version-control your uploaded artifact objects and prevent files from over-writing each other.If you'd like, let me know:Do you prefer using IAM Roles with OIDC provider authentication instead of long-lived access keys for better security?Do you need to apply specific S3 Access Control Lists (ACLs) or storage classes (like Glacier) on upload?AI can make mistakes, so double-check responses 16 sitesHow to authenticate to an AWS S3 bucket25 Apr 2023 — How to authenticate to an AWS S3 bucket 2. Upload your images on your bucket 3. Retrieve your access key On AWS console, go to sec...TwicPicsUpload Artifacts to S39 Oct 2025 — Upload Artifacts to S3 ( AWS S3 ) Access to an S3 ( AWS S3 ) instance. A CI pipeline with a Build stage. Steps in your pipeline th...Harness Developer Hub
 
   deploy:
     runs-on: ubuntu-latest
