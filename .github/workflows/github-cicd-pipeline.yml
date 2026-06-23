@@ -44,7 +44,31 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
-      # 6. Upload WAR as artifact (optional, for later jobs)
+      # Step 6: Run SonarQube Static Code Analysis
+      - name: SonarQube Analysis Scan
+        uses: sonarsource/sonarqube-scan-action@v3.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          # Optional inline arguments. Alternatively, configure a 'sonar-project.properties' file
+          args: >
+            -Dsonar.projectKey=my-github-app-key
+            -Dsonar.projectName=MyGitHubApplication
+            -Dsonar.sources=src
+            -Dsonar.tests=src/test
+            -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info
+
+      # Step 7: Enforce SonarQube Quality Gate Check (Fails pipeline if gate fails)
+      - name: Check SonarQube Quality Gate Status
+        uses: sonarsource/sonarqube-quality-gate-action@v2.1.0
+        # Force API polling timeout after 5 minutes if response lags
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+      # 8. Upload WAR as artifact (optional, for later jobs)
       - name: Upload WAR artifact
         uses: actions/upload-artifact@v4
         with:
