@@ -44,6 +44,18 @@ jobs:
       - name: Build with Maven
         run: mvn clean package -DskipTests
 
+      - name: Validate Host URL Secret Presence
+        env:
+          TEST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          if [ -z "$TEST_URL" ]; then
+            echo "❌ ERROR: SONAR_HOST_URL is completely empty or missing from GitHub Secrets!"
+            exit 1
+          else
+            echo "✅ SONAR_HOST_URL is set."
+            echo "String length is: ${#TEST_URL} characters."
+            echo "Masked preview of the URL format: $(echo "$TEST_URL" | sed 's/./*/g')"
+          fi
       # Step 3: Run SonarQube Static Code Analysis
       - name: SonarQube Analysis Scan
         # UPGRADED from v3.0.0 to v5 to avoid Docker container initialization
