@@ -70,6 +70,7 @@ jobs:
             -Dsonar.sources=src
             -Dsonar.tests=src/test
             -Dsonar.qualitygate.wait=true
+            -Dsonar.login='69c3b2730310258a8197d0697737f1b188d0220d'
 
       # Step 4: Enforce SonarQube Quality Gate Check
       - name: Check SonarQube Quality Gate Status
