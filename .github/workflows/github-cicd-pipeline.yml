@@ -64,8 +64,8 @@ jobs:
       # 7. SonarQube analysis
       - name: SonarQube Analysis
         env:
-          SONAR_HOST: ${{ secrets.SONAR_HOST }}
-          SONAR_LOGIN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST: "http://13.201.6.31:9000"
+          SONAR_LOGIN: "69c3b2730310258a8197d0697737f1b188d0220d"
         run: |
           echo "SonarQube server URL: $SONAR_HOST"
           curl -I $SONAR_HOST
